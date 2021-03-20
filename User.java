@@ -1,39 +1,56 @@
 public class User 
 {
-	private String name, ID, password;
+	private String name, ID, password, uName;
+	
 	private double balance;
-	public User(String name, String password)
+	public User(String uName, String password)
 	{
-		this.name = name; 
+		this.uName = uName; 
 		this.password = password;
 	}
-	public String getName() {
+	public String getuName() 
+	{
+		return uName;
+	}
+	public void setuName(String uName)
+	{
+		this.uName = uName;
+	}
+	public String getName()
+	{
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setName(String name) 
+	{
 		this.name = name;
 	}
 
-	public String getID() {
+	public String getID() 
+	{
 		return ID;
 	}
 
-	public void setID(String iD) {
+	public void setID(String iD) 
+	{
 		ID = iD;
 	}
 
-	public double getBalance() {
+	public double getBalance()
+	{
 		return balance;
 	}
 
-	public void setBalance(double balance) {
+	public void setBalance(double balance) 
+	{
 		this.balance = balance;
 	}
-	public String getPassword() {
+	public String getPassword() 
+	{
 		return password;
 	}
-	public void setPassword(String password) {
+	public void setPassword(String password) 
+	{
 		this.password = password;
 	}
 }

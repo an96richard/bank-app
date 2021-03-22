@@ -10,6 +10,23 @@ class Application
 	 * 	-Properly use data structure techniques to store and manipulate data efficiently
 	 *  -Make my github look nicer
 	 *  
+	 *  
+	 *  v0.2
+	 *  Changes:
+	 *  	-Made new AccountList class to read and write accounts to file
+	 *  	-moved Find User Method to AccountList
+	 *  	
+	 *  Todo:
+	 *  	-Finish AccountList class
+	 *  	-Make main menu
+	 *  	-Make admin menu (ability to delete accounts, move money freely, etc)
+	 *  	-Make deposit and withdraw transactions
+	 *  	-Allow different types of accounts
+	 *  	-Implement database, multithreading, etc
+	 *  	-Move all this to the readMe.
+	 *  
+	 *  
+	 *  
 	 *  v0.1
 	 *  Changes:
 	 *  	-Finished Sign Up Menu, still need testing.
@@ -23,7 +40,7 @@ class Application
 	 *  	-Move all this to the readMe.
 	 */
 	
-	private static ArrayList<User> userList = new ArrayList<User>();
+	private static AccountList userList = new AccountList();
 	public static void main(String []args)
 	{
 		int start = 0;
@@ -45,7 +62,7 @@ class Application
 			//Login Option
 			else if(ans.equals("1") || ans.toLowerCase().equals("log in"))
 			{
-				User newUser = LoginMenu();
+				User newUser = loginMenu();
 				if(newUser != null)
 				{
 					//MainMenu(newUser)
@@ -59,7 +76,7 @@ class Application
 			//Sign Up Option
 			else if(ans.equals("2") || ans.toLowerCase().equals("sign up"))
 			{
-				SignUpMenu();
+				signUpMenu();
 				System.out.println("Thanks for Signing Up With Bank of R! Please Log In By Selecting Choice 1");
 			}
 			else
@@ -72,7 +89,7 @@ class Application
 	//--------------LoginMenu------------------
 	//@return User object to initiate Main Menu
 	//Will return null if user wants to exit and sign up instead
-	public static User LoginMenu()
+	public static User loginMenu()
 	{
 		int inMenu = 0;
 		Scanner reader = new Scanner(System.in);
@@ -85,7 +102,7 @@ class Application
 			username = reader.nextLine();
 			System.out.println("Password: ");
 			password = reader.nextLine();
-			trgtUser = FindUser(username, password);
+			trgtUser = userList.findUser(username, password);
 			if(trgtUser!= null)
 			{
 				return trgtUser;
@@ -104,7 +121,7 @@ class Application
 	//------------Sign Up Menu---------------
 	//@return Boolean, true if an account was created, false if not.
 	//Has proper error checks, can change depending on if we get hacked or not
-	public static Boolean SignUpMenu()
+	public static Boolean signUpMenu()
 	{
 		Scanner reader = new Scanner(System.in);
 		int running = 0;
@@ -129,7 +146,7 @@ class Application
 				}
 				if(safe == 0)
 				{
-					if(FindUser(uName) == null)
+					if(userList.findUser(uName) == null)
 					{
 						while(running == 0)
 						{
@@ -158,24 +175,7 @@ class Application
 		return false;
 		
 	}
+
 	
-	//-------Find User-------
-	//@param userName and password or just username search available.
-	//uName and pass search is used to verify identity and for log in only
 	
-	public static User FindUser(String uName)
-	{
-		for (User element : userList)
-			if (element.getuName().equals(uName))
-					return element;	   
-		return null;
-	}
-	public static User FindUser(String uName, String pass)
-	{
-		for (User element : userList)
-			if (element.getuName().equals(uName))
-				if(element.getPassword().equals(pass))
-					return element;	   
-		return null;
-	}
 }

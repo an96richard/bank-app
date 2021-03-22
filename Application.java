@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 class Application 
@@ -15,7 +16,7 @@ class Application
 	 *  Changes:
 	 *  	-Made new AccountList class to read and write accounts to file
 	 *  	-moved Find User Method to AccountList
-	 *  	
+	 *  	-added add and delete methods using readers and writers.
 	 *  Todo:
 	 *  	-Finish AccountList class
 	 *  	-Make main menu
@@ -55,7 +56,14 @@ class Application
 			String ans = reader.nextLine();
 			if(ans.equals("0") || ans.toLowerCase().equals("exit"))
 			{
+				try {
+					userList.save();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				System.out.println("Thanks for using Bank of R! Have a great day!");
+				start = 1;
 			}
 			
 			
@@ -130,9 +138,11 @@ class Application
 			System.out.println("I see you want to sign up for Bank of R, what would you like your username to be?");
 			String uName = reader.nextLine();
 			if(uName.length() > 16)
-				System.out.println("Usernames can only be 16 characters or less, please try again!");
+				System.out.println("Usernames can only be 16 characters or less, please try again!(-1 to exit)");
 			else if(uName.length() == 0)
-				System.out.println("Usernames must have more than 0 characters, please try again!");
+				System.out.println("Usernames must have more than 0 characters, please try again!(-1 to exit)");
+			else if(uName.equals("-1"))
+				return false;
 			else
 			{
 				int safe = 0;
@@ -146,14 +156,17 @@ class Application
 				}
 				if(safe == 0)
 				{
-					if(userList.findUser(uName) == null)
+					//If user is not a duplicate
+					if(userList.findUser(uName) == -1)
 					{
 						while(running == 0)
 						{
 							System.out.println("Now What would your password be? ");
 							String password = reader.nextLine();
 							if(password.length() < 6)
-								System.out.println("Sorry passwords must be more than 6 characters, please try again!");
+								System.out.println("Sorry passwords must be more than 6 characters, please try again!(-1 to exit)");
+							else if(password.equals("-1"))
+								return false;
 							else
 							{
 								System.out.println("Great! You're all set!");

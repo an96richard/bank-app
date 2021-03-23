@@ -12,6 +12,15 @@ class Application
 	 *  -Make my github look nicer
 	 *  
 	 *  
+	 *  
+	 *  v0.22
+	 *  Changes:
+	 *  	-Minor fixes to the save method and read methods implemented in the AccountList
+	 *  	-added a show list method to print the accounts currently saved. 
+	 *  	
+	 *  Notes:
+	 *  slow day, dont feel like doing much, not a lot of motivation. 
+	 *  
 	 *  v0.2
 	 *  Changes:
 	 *  	-Made new AccountList class to read and write accounts to file
@@ -44,6 +53,7 @@ class Application
 	private static AccountList userList = new AccountList();
 	public static void main(String []args)
 	{
+		userList.showList();
 		int start = 0;
 		Scanner reader = new Scanner(System.in);
 		while(start == 0)

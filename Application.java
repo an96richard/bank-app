@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Scanner;
 class Application 
@@ -11,6 +12,20 @@ class Application
 	 * 	-Properly use data structure techniques to store and manipulate data efficiently
 	 *  -Make my github look nicer
 	 *  
+	 *  v0.3
+	 *  Changes:
+	 *  	-Added Main User Menu
+	 *  		-Implemented Withdraw, Deposit, Check Balance options*
+	 *  	-Added Admin tag onto users to check for admin priv
+	 *  	-Added Admin sign ups
+	 *  Notes: 
+	 *  Found some motivation to code more, lets get this bread. 
+	 *
+	 *  Todo:
+	 *  	-Finish AccountList class
+	 *  	-Make admin menu (ability to delete accounts, move money freely, etc)
+	 *  	-Implement database, multithreading, etc
+	 *  	-Move all this to the readMe.
 	 *  
 	 *  
 	 *  v0.22
@@ -64,7 +79,7 @@ class Application
 					+ "\n 0. Exit");
 			
 			String ans = reader.nextLine();
-			if(ans.equals("0") || ans.toLowerCase().equals("exit"))
+			if(ans.trim().equals("0") || ans.trim().toLowerCase().equals("exit"))
 			{
 				try {
 					userList.save();
@@ -78,12 +93,19 @@ class Application
 			
 			
 			//Login Option
-			else if(ans.equals("1") || ans.toLowerCase().equals("log in"))
+			else if(ans.trim().equals("1") || ans.trim().toLowerCase().equals("log in"))
 			{
 				User newUser = loginMenu();
 				if(newUser != null)
 				{
-					//MainMenu(newUser)
+					if(newUser.getAdminPriv())
+					{
+						/*
+						 * implement admin menu
+						 */
+					}
+					else
+						mainUserMenu(newUser);
 				}
 			}
 			
@@ -104,6 +126,101 @@ class Application
 		}
 	}
 	
+	
+	public static void mainUserMenu(User user)
+	{
+		int active = 0;
+		NumberFormat formatter = NumberFormat.getCurrencyInstance();
+		Scanner reader = new Scanner(System.in);
+		while(active ==0)
+		{		
+			System.out.println("Welcome, " + user.getuName() + "! How Can I Assist You Today?"
+					+ "\n 1. Deposit"
+					+ "\n 2. Withdraw"
+					+ "\n 3. Check Balance"
+					+ "\n 0. Log Out");
+			String answer = reader.nextLine();
+			if(answer.trim().equals("1") || answer.trim().toLowerCase().equals("deposit"))
+			{
+				int running = 0;
+				while(running == 0)
+				{
+					System.out.println("How Much Would You Like To Deposit? (Enter -1 To Go Back");
+					answer = reader.nextLine();
+					double amount = 0.0;
+					try 
+					{
+						amount = Double.parseDouble(answer);
+					} 
+					catch(Exception e)
+					{
+						System.out.println("That amount is invalid");
+						continue;
+					}
+					if(amount < 0)
+					{
+						running = 1;
+					}
+					else
+					{
+						amount = Math.floor(amount * 100)/100;
+						user.deposit(amount);
+						System.out.println("Deposit Successful! Your New Balance Is $" + user.getBalance());
+						running = 1;
+					}
+					
+				}
+			}
+			if(answer.trim().equals("2") || answer.trim().toLowerCase().equals("withdraw"))
+			{
+				int running = 0;
+				while(running == 0)
+				{
+					System.out.println("How Much Would You Like To Withdraw? (Enter -1 To Go Back");
+					answer = reader.nextLine();
+					double amount = 0.0;
+					try 
+					{
+							Double.parseDouble(answer);
+					} 
+					catch(Exception e)
+					{
+						System.out.println("That amount is invalid");
+						continue;
+					}
+					if(amount < 0)
+					{
+						running = 1;
+					}
+					else
+					{
+						amount = Math.floor(amount * 100)/100;
+						if(user.getBalance() > amount)
+						{
+							user.withdraw(amount);
+							System.out.println("Withdraw Successful! Your New Balance Is $" + user.getBalance());
+							running = 1;
+						}
+						else
+						{
+							System.out.println("Your Witdraw Cannot Be Executed Because You Do Not Have Enough Funds.");
+						}	
+					}
+					
+				}
+			}
+			if(answer.trim().equals("3") || answer.trim().toLowerCase().equals("check balance"))
+			{
+				System.out.println("Your Balance: $" + formatter.format(user.getBalance()));
+				continue;
+			}
+			if(answer.trim().equals("0") || answer.trim().toLowerCase().equals("log out"))
+			{
+				return;
+			}
+		}
+		
+	}
 	//--------------LoginMenu------------------
 	//@return User object to initiate Main Menu
 	//Will return null if user wants to exit and sign up instead
@@ -151,7 +268,7 @@ class Application
 				System.out.println("Usernames can only be 16 characters or less, please try again!(-1 to exit)");
 			else if(uName.length() == 0)
 				System.out.println("Usernames must have more than 0 characters, please try again!(-1 to exit)");
-			else if(uName.equals("-1"))
+			else if(uName.trim().equals("-1"))
 				return false;
 			else
 			{
@@ -179,8 +296,14 @@ class Application
 								return false;
 							else
 							{
-								System.out.println("Great! You're all set!");
 								User newUser = new User(uName, password);
+								System.out.println("Is this an admin account? (Y/N");
+								String answer = reader.nextLine();
+								if(answer.toLowerCase().equals("yes") || answer.toLowerCase().equals("y"))
+								{
+									newUser.setAdminPriv(true);
+								}
+								System.out.println("Great! You're all set!");
 								userList.add(newUser);
 								return true;
 							}

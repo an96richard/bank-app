@@ -12,6 +12,23 @@ class Application
 	 * 	-Properly use data structure techniques to store and manipulate data efficiently
 	 *  -Make my github look nicer
 	 *  
+	 *  v0.45
+	 *  Changes:
+	 *  	-Implemented Admin Menu
+	 *  	-Implemented Manage Accounts Menu
+	 *  		-Includes fully implemented functions of deleting accounts, managing balance, managing username + password, etc
+	 *  	-Added Admin Class
+	 *  		-Needs Admin Methods that will be added later
+	 *  	-Minor Changes to User and AccountList 
+	 *  NOTES:
+	 *  	Really good progress today, worked on two really big methods. First local version should be done soon. 
+	 *  
+	 *  Todo:
+	 *  	-Implement better search functions to find accounts in large groups
+	 *  	-Implement sorting methods to show list of accounts.
+	 *  	-Implement database, multithreading, etc
+	 *  	-Move all this to the readMe.
+	 *  
 	 *  v0.3
 	 *  Changes:
 	 *  	-Added Main User Menu
@@ -65,10 +82,11 @@ class Application
 	 *  	-Move all this to the readMe.
 	 */
 	
-	private static AccountList userList = new AccountList();
+	private static AccountList userList = new AccountList("accounts.txt");
+	private static AccountList adminList = new AccountList("adminAccounts.txt");
 	public static void main(String []args)
 	{
-		userList.showList();
+		userList.showListAdmin(); //<----------------------This is used for Debug 
 		int start = 0;
 		Scanner reader = new Scanner(System.in);
 		while(start == 0)
@@ -92,41 +110,186 @@ class Application
 			}
 			
 			
-			//Login Option
+			//LOGIN OPTION
 			else if(ans.trim().equals("1") || ans.trim().toLowerCase().equals("log in"))
 			{
 				User newUser = loginMenu();
 				if(newUser != null)
 				{
 					if(newUser.getAdminPriv())
-					{
-						/*
-						 * implement admin menu
-						 */
-					}
+						mainAdminMenu(newUser);
 					else
 						mainUserMenu(newUser);
 				}
 			}
-			
-			
-			
-			
-			
-			//Sign Up Option
+			//SIGN UP OPTION
 			else if(ans.equals("2") || ans.toLowerCase().equals("sign up"))
 			{
 				signUpMenu();
 				System.out.println("Thanks for Signing Up With Bank of R! Please Log In By Selecting Choice 1");
 			}
 			else
-			{
 				System.out.println("Sorry that is not a valid choice, please try again!");
-			}
 		}
 	}
 	
 	
+	/*=====================MAIN ADMIN MENU==================================
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 */
+	public static void mainAdminMenu(User admin)
+	{
+		int active = 0;
+		NumberFormat formatter = NumberFormat.getCurrencyInstance();
+		Scanner reader = new Scanner(System.in);
+		while(active ==0)
+		{		
+			System.out.println("Welcome, " + admin.getuName() + "! How Can I Assist You Today?"
+					+ "\n 1. Deposit"
+					+ "\n 2. Withdraw"
+					+ "\n 3. Check Balance"
+					+ "\n 4. Show User List"
+					+ "\n 5. Show Admin List"
+					+ "\n 6. Manage Accounts"
+					+ "\n 0. Log Out");
+			String answer = reader.nextLine();
+			if(answer.trim().equals("1") || answer.trim().toLowerCase().equals("deposit"))
+			{
+				int running = 0;
+				while(running == 0)
+				{
+					System.out.println("How Much Would You Like To Deposit? (Enter -1 To Go Back");
+					answer = reader.nextLine();
+					double amount = 0.0;
+					try 
+					{
+						amount = Double.parseDouble(answer);
+					} 
+					catch(Exception e)
+					{
+						System.out.println("That amount is invalid");
+						continue;
+					}
+					
+					
+					if(amount < 0)
+						running = 1;
+					else
+					{
+						amount = Math.floor(amount * 100)/100;
+						admin.deposit(amount);
+						System.out.println("Deposit Successful! Your New Balance Is $" + admin.getBalance());
+						running = 1;
+					}
+				}
+			}
+			if(answer.trim().equals("2") || answer.trim().toLowerCase().equals("withdraw"))
+			{
+				int running = 0;
+				while(running == 0)
+				{
+					System.out.println("How Much Would You Like To Withdraw? (Enter -1 To Go Back");
+					answer = reader.nextLine();
+					double amount = 0.0;
+					try 
+					{
+							Double.parseDouble(answer);
+					} 
+					catch(Exception e)
+					{
+						System.out.println("That amount is invalid");
+						continue;
+					}
+					
+					
+					if(amount < 0)
+						running = 1;
+					else
+					{
+						amount = Math.floor(amount * 100)/100;
+						if(admin.getBalance() > amount)
+						{
+							admin.withdraw(amount);
+							System.out.println("Withdraw Successful! Your New Balance Is $" + admin.getBalance());
+							running = 1;
+						}
+						else
+							System.out.println("Your Witdraw Cannot Be Executed Because You Do Not Have Enough Funds.");	
+					}
+				}
+			}
+			if(answer.trim().equals("3") || answer.trim().toLowerCase().equals("check balance"))
+			{
+				System.out.println("Your Balance: $" + formatter.format(admin.getBalance()));
+				continue;
+			}
+			if(answer.trim().equals("4") || answer.trim().toLowerCase().equals("show user list"))
+			{
+				userList.showListAdmin();
+				continue;
+			}
+			if(answer.trim().equals("5") || answer.trim().toLowerCase().equals("show admin list"))
+			{
+				adminList.showListAdmin();
+				continue;
+			}
+			if(answer.trim().equals("6") || answer.trim().toLowerCase().equals("manage accounts"))
+			{
+				int inMenu = 0;
+				while(inMenu == 0)
+				{
+					System.out.println("Which Accounts would you like to manage?"
+							+ "\n1. User"
+							+ "\n2. Admin"
+							+ "\n0. Go Back");
+					
+					answer = reader.nextLine();
+					if(answer.trim().equals("1") || answer.trim().toLowerCase().equals("user"))
+						manageAccounts(userList);
+					else if(answer.trim().equals("2") || answer.trim().toLowerCase().equals("admin"))
+						manageAccounts(adminList);
+					else if(answer.trim().equals("0") || answer.trim().toLowerCase().equals("go back"))
+						inMenu = 1;
+					else
+						System.out.println("Sorry that is not a valid list of users.");
+				}
+				continue;
+			}
+			if(answer.trim().equals("0") || answer.trim().toLowerCase().equals("log out"))
+			{
+				return;
+			}
+		}
+		
+	}
+	
+	/*=============================MAIN USER MENU==========================================
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 */
 	public static void mainUserMenu(User user)
 	{
 		int active = 0;
@@ -135,10 +298,10 @@ class Application
 		while(active ==0)
 		{		
 			System.out.println("Welcome, " + user.getuName() + "! How Can I Assist You Today?"
-					+ "\n 1. Deposit"
-					+ "\n 2. Withdraw"
-					+ "\n 3. Check Balance"
-					+ "\n 0. Log Out");
+					+ "\n1. Deposit"
+					+ "\n2. Withdraw"
+					+ "\n3. Check Balance"
+					+ "\n0. Log Out");
 			String answer = reader.nextLine();
 			if(answer.trim().equals("1") || answer.trim().toLowerCase().equals("deposit"))
 			{
@@ -203,7 +366,7 @@ class Application
 						}
 						else
 						{
-							System.out.println("Your Witdraw Cannot Be Executed Because You Do Not Have Enough Funds.");
+							System.out.println("Your Withdraw Cannot Be Executed Because You Do Not Have Enough Funds.");
 						}	
 					}
 					
@@ -221,6 +384,244 @@ class Application
 		}
 		
 	}
+	
+	/*====================MANAGE ACCOUNTS MENU======================
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 */
+	public static void manageAccounts(AccountList list)
+	{
+		int active = 0;
+		Scanner reader = new Scanner(System.in);
+		list.showList();
+		int numSelect = -2;
+		while(active == 0)
+		{
+			System.out.println("Which Account Would You Like To Alter? (Enter A Number. 0 To Exit. -1 To Show List)");
+			try
+			{
+				numSelect = Integer.parseInt(reader.nextLine());
+			}
+			catch(Exception e)
+			{
+				System.out.println("That is not a valid number");
+				continue;
+			}
+			if(numSelect < -1)
+			{
+				System.out.println("That is not a valid number");
+				continue;
+			}
+			else if(numSelect == 0)
+				return;
+			else if(numSelect == -1)
+				list.showList();
+			else
+			{
+				User trgt = list.getUser(numSelect-1);
+				int inMenu = 0;
+				while(inMenu == 0)
+				{
+					System.out.println("What would you like to do?"
+							+ "\n1. Delete Account"
+							+ "\n2. Change Balance"
+							+ "\n3. Change Password"
+							+ "\n4. Change Username");
+					if(trgt.getAdminPriv())
+						System.out.println("5. Change Admin Privledges");
+					System.out.println("0. Go Back");
+					String answer = reader.nextLine();
+					if(answer.trim().equals("1") || answer.trim().toLowerCase().equals("delete account"))
+					{
+						System.out.println("Are You Sure You Want to Delete " + trgt.getuName() + "? (Y/N)");
+						answer = reader.nextLine();
+						if( answer.trim().toLowerCase().equals("y") || answer.trim().toLowerCase().equals("yes"))
+							list.delete(trgt.getuName());
+						else
+							continue;
+					}
+					if(answer.trim().equals("2") || answer.trim().toLowerCase().equals("change balance"))
+					{
+						boolean in = true;
+						while(in)
+						{
+							System.out.println("What Would You Like To Do? "
+									+ "\n- Withdraw"
+									+ "\n+ Deposit"
+									+ "\n0. Go Back");
+							answer = reader.nextLine();
+							if(answer.trim().equals("-") || answer.trim().toLowerCase().equals("withdraw"))
+							{
+								int running = 0;
+								while(running == 0)
+								{
+									System.out.println("How Much Would You Like To Withdraw? (Enter -1 To Go Back");
+									answer = reader.nextLine();
+									double amount = 0.0;
+									try 
+									{
+											Double.parseDouble(answer);
+									} 
+									catch(Exception e)
+									{
+										System.out.println("That amount is invalid");
+										continue;
+									}
+									if(amount < 0)
+									{
+										running = 1;
+									}
+									else
+									{
+										amount = Math.floor(amount * 100)/100;
+										if(trgt.getBalance() > amount)
+										{
+											trgt.withdraw(amount);
+											System.out.println("Withdraw Successful! The New Balance Is $" + trgt.getBalance());
+											running = 1;
+										}
+										else
+										{
+											System.out.println("The Withdraw Cannot Be Executed Because The User Does Not Have Enough Funds.");
+										}	
+									}
+								}
+							}
+							else if(answer.trim().equals("+") || answer.trim().toLowerCase().equals("deposit"))
+							{
+								int running = 0;
+								while(running == 0)
+								{
+									System.out.println("How Much Would You Like To Deposit? (Enter -1 To Go Back");
+									answer = reader.nextLine();
+									double amount = 0.0;
+									try 
+									{
+										amount = Double.parseDouble(answer);
+									} 
+									catch(Exception e)
+									{
+										System.out.println("That amount is invalid");
+										continue;
+									}
+									if(amount < 0)
+										running = 1;
+									else
+									{
+										amount = Math.floor(amount * 100)/100;
+										trgt.deposit(amount);
+										System.out.println("Deposit Successful! The New Balance Is $" + trgt.getBalance());
+										running = 1;
+									}
+								}
+							}
+							else if(answer.trim().equals("0") || answer.trim().toLowerCase().equals("go back"))
+								in = false;
+							else
+								System.out.println("That Is Not A Valid Choice");
+						}
+					}
+					if(answer.trim().equals("3") || answer.trim().toLowerCase().equals("change password"))
+					{
+						int running = 0;
+						while(running == 0)
+						{
+							System.out.println("What Is The New Password? ");
+							String password = reader.nextLine();
+							if(password.length() < 6)
+								System.out.println("Sorry passwords must be more than 6 characters, please try again!(-1 to exit)");
+							else if(password.equals("-1"))
+								running = 1;
+							else
+							{
+								trgt.setPassword(password);
+								System.out.println("Password Successfully Changed");
+							}
+						}
+					}
+					if(answer.trim().equals("4") || answer.trim().toLowerCase().equals("change username"))
+					{
+						int running = 0;
+						while(running == 0)
+						{
+							System.out.println("What Is The New Username?");
+							String uName = reader.nextLine();
+							if(uName.length() > 16)
+								System.out.println("Usernames can only be 16 characters or less, please try again!(-1 to exit)");
+							else if(uName.length() == 0)
+								System.out.println("Usernames must have more than 0 characters, please try again!(-1 to exit)");
+							else if(uName.trim().equals("-1"))
+								running = 1;
+							else
+							{
+								int safe = 0;
+								for(int i = 0; i < uName.length(); i++)
+								{
+									if(!(!Character.isLetter(uName.charAt(i)) ^ !Character.isDigit(uName.charAt(i))))
+									{
+										safe = 1;
+										break;
+									}
+								}
+								if(safe == 0)
+								{
+									//If user is not a duplicate
+									if(userList.findUser(uName) == -1 && adminList.findUser(uName) == -1)
+									{
+										trgt.setuName(uName);
+									}
+									else
+										System.out.println("Sorry an account with that name already exists");
+								}
+								else
+									System.out.println("Sorry you can only have numerical or alphabetical symbols in your username, please try again!");
+							}
+						}
+					}
+					if(answer.trim().equals("5") || answer.trim().toLowerCase().equals("change admin privledges"))
+					{
+						int running = 0;
+						while(running == 0)
+						{
+							if(trgt.getAdminPriv())
+							{
+								System.out.println("Would You Like To Remove This Account's Admin? (Y/N");
+								answer = reader.nextLine();
+								if(answer.trim().equals("y") || answer.trim().toLowerCase().equals("yes"))
+									trgt.setAdminPriv(false);
+								running = 1;
+							}
+							else
+							{
+								System.out.println("Would You Like To Give This Account Admin? (Y/N");
+								answer = reader.nextLine();
+								if(answer.trim().equals("y") || answer.trim().toLowerCase().equals("yes"))
+									trgt.setAdminPriv(true);
+								running = 1;
+							}
+						}
+					}
+					if(answer.trim().equals("0") || answer.trim().toLowerCase().equals("go back"))
+						inMenu = 1;
+				}
+			}
+		}
+	}
+	
 	//--------------LoginMenu------------------
 	//@return User object to initiate Main Menu
 	//Will return null if user wants to exit and sign up instead
@@ -284,7 +685,7 @@ class Application
 				if(safe == 0)
 				{
 					//If user is not a duplicate
-					if(userList.findUser(uName) == -1)
+					if(userList.findUser(uName) == -1 && adminList.findUser(uName) == -1)
 					{
 						while(running == 0)
 						{
@@ -296,15 +697,21 @@ class Application
 								return false;
 							else
 							{
-								User newUser = new User(uName, password);
+								User newUser = null;
 								System.out.println("Is this an admin account? (Y/N");
 								String answer = reader.nextLine();
 								if(answer.toLowerCase().equals("yes") || answer.toLowerCase().equals("y"))
 								{
+									newUser = new Admin(uName, password);
 									newUser.setAdminPriv(true);
+									adminList.add(newUser);
+								}
+								else
+								{
+									newUser = new User(uName, password);
+									userList.add(newUser);
 								}
 								System.out.println("Great! You're all set!");
-								userList.add(newUser);
 								return true;
 							}
 						}	

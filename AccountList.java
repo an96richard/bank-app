@@ -14,7 +14,7 @@ public class AccountList
 	
 	//--------------Account List Constructor------------------
 	//This should read in a file that stores all accounts and update the arrayList with users and their information for use. 
-	public AccountList(String fileName)
+	public AccountList(String fileName, boolean isAdminList)
 	{	
 		
 		file = new File(fileName);
@@ -59,7 +59,11 @@ public class AccountList
 
 			if(userName != null && password != null)
 			{
-				User user = new User(userName, password);
+				User user = null;
+				if(isAdminList)
+					user = new Admin(userName, password);
+				else
+					user = new User(userName, password);
 				accountList.add(user);
 			}
 			if(reader.hasNext())

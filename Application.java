@@ -1,3 +1,4 @@
+import java.awt.datatransfer.SystemFlavorMap;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -11,6 +12,23 @@ class Application
 	 * 	-Use multithreading to synchronize multiple transactions
 	 * 	-Properly use data structure techniques to store and manipulate data efficiently
 	 *  -Make my github look nicer
+	 *  
+	 *  v0.46
+	 *  Changes:
+	 *  	-Fixed minor typos
+	 *  	-Fixed withdraw problem
+	 *  	-Fixed adding and removing admin privledges
+	 *  	-Fixed incorrect loading of accounts
+	 *  	-Fixed problem with changing usernames and passwords
+	 *  
+	 *  Notes: Lots of minor fixes mostly found from testing today. Good Haul. Will work on saving balance on accounts next.
+	 *  
+	 *  Todo:
+	 *  	-Implement saving balance from users.
+	 *  	-Implement better search functions to find accounts in large groups
+	 *  	-Implement sorting methods to show list of accounts.
+	 *  	-Implement database, multithreading, etc
+	 *  	-Move all this to the readMe.
 	 *  
 	 *  v0.45
 	 *  Changes:
@@ -82,8 +100,8 @@ class Application
 	 *  	-Move all this to the readMe.
 	 */
 	
-	private static AccountList userList = new AccountList("accounts.txt");
-	private static AccountList adminList = new AccountList("adminAccounts.txt");
+	private static AccountList userList = new AccountList("accounts.txt", false);
+	private static AccountList adminList = new AccountList("adminAccounts.txt", true);
 	public static void main(String []args)
 	{
 		userList.showListAdmin(); //<----------------------This is used for Debug 
@@ -101,6 +119,7 @@ class Application
 			{
 				try {
 					userList.save();
+					adminList.save();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -170,7 +189,7 @@ class Application
 				int running = 0;
 				while(running == 0)
 				{
-					System.out.println("How Much Would You Like To Deposit? (Enter -1 To Go Back");
+					System.out.println("How Much Would You Like To Deposit? (Enter -1 To Go Back)");
 					answer = reader.nextLine();
 					double amount = 0.0;
 					try 
@@ -200,12 +219,12 @@ class Application
 				int running = 0;
 				while(running == 0)
 				{
-					System.out.println("How Much Would You Like To Withdraw? (Enter -1 To Go Back");
+					System.out.println("How Much Would You Like To Withdraw? (Enter -1 To Go Back)");
 					answer = reader.nextLine();
 					double amount = 0.0;
 					try 
 					{
-							Double.parseDouble(answer);
+							amount = Double.parseDouble(answer);
 					} 
 					catch(Exception e)
 					{
@@ -219,7 +238,7 @@ class Application
 					else
 					{
 						amount = Math.floor(amount * 100)/100;
-						if(admin.getBalance() > amount)
+						if(admin.getBalance() >= amount)
 						{
 							admin.withdraw(amount);
 							System.out.println("Withdraw Successful! Your New Balance Is $" + admin.getBalance());
@@ -232,7 +251,7 @@ class Application
 			}
 			if(answer.trim().equals("3") || answer.trim().toLowerCase().equals("check balance"))
 			{
-				System.out.println("Your Balance: $" + formatter.format(admin.getBalance()));
+				System.out.println("Your Balance: " + formatter.format(admin.getBalance()));
 				continue;
 			}
 			if(answer.trim().equals("4") || answer.trim().toLowerCase().equals("show user list"))
@@ -308,7 +327,7 @@ class Application
 				int running = 0;
 				while(running == 0)
 				{
-					System.out.println("How Much Would You Like To Deposit? (Enter -1 To Go Back");
+					System.out.println("How Much Would You Like To Deposit? (Enter -1 To Go Back)");
 					answer = reader.nextLine();
 					double amount = 0.0;
 					try 
@@ -339,12 +358,12 @@ class Application
 				int running = 0;
 				while(running == 0)
 				{
-					System.out.println("How Much Would You Like To Withdraw? (Enter -1 To Go Back");
+					System.out.println("How Much Would You Like To Withdraw? (Enter -1 To Go Back)");
 					answer = reader.nextLine();
 					double amount = 0.0;
 					try 
 					{
-							Double.parseDouble(answer);
+							amount = Double.parseDouble(answer);
 					} 
 					catch(Exception e)
 					{
@@ -358,7 +377,7 @@ class Application
 					else
 					{
 						amount = Math.floor(amount * 100)/100;
-						if(user.getBalance() > amount)
+						if(user.getBalance() >= amount)
 						{
 							user.withdraw(amount);
 							System.out.println("Withdraw Successful! Your New Balance Is $" + user.getBalance());
@@ -374,7 +393,7 @@ class Application
 			}
 			if(answer.trim().equals("3") || answer.trim().toLowerCase().equals("check balance"))
 			{
-				System.out.println("Your Balance: $" + formatter.format(user.getBalance()));
+				System.out.println("Your Balance: " + formatter.format(user.getBalance()));
 				continue;
 			}
 			if(answer.trim().equals("0") || answer.trim().toLowerCase().equals("log out"))
@@ -407,10 +426,10 @@ class Application
 	{
 		int active = 0;
 		Scanner reader = new Scanner(System.in);
-		list.showList();
 		int numSelect = -2;
 		while(active == 0)
 		{
+			list.showList();
 			System.out.println("Which Account Would You Like To Alter? (Enter A Number. 0 To Exit. -1 To Show List)");
 			try
 			{
@@ -440,10 +459,9 @@ class Application
 							+ "\n1. Delete Account"
 							+ "\n2. Change Balance"
 							+ "\n3. Change Password"
-							+ "\n4. Change Username");
-					if(trgt.getAdminPriv())
-						System.out.println("5. Change Admin Privledges");
-					System.out.println("0. Go Back");
+							+ "\n4. Change Username"
+							+ "\n5. Change Admin Privledges"
+							+ "\n0. Go Back");
 					String answer = reader.nextLine();
 					if(answer.trim().equals("1") || answer.trim().toLowerCase().equals("delete account"))
 					{
@@ -469,7 +487,7 @@ class Application
 								int running = 0;
 								while(running == 0)
 								{
-									System.out.println("How Much Would You Like To Withdraw? (Enter -1 To Go Back");
+									System.out.println("How Much Would You Like To Withdraw? (Enter -1 To Go Back)");
 									answer = reader.nextLine();
 									double amount = 0.0;
 									try 
@@ -506,7 +524,7 @@ class Application
 								int running = 0;
 								while(running == 0)
 								{
-									System.out.println("How Much Would You Like To Deposit? (Enter -1 To Go Back");
+									System.out.println("How Much Would You Like To Deposit? (Enter -1 To Go Back)");
 									answer = reader.nextLine();
 									double amount = 0.0;
 									try 
@@ -550,6 +568,7 @@ class Application
 							{
 								trgt.setPassword(password);
 								System.out.println("Password Successfully Changed");
+								running = 1;
 							}
 						}
 					}
@@ -583,6 +602,8 @@ class Application
 									if(userList.findUser(uName) == -1 && adminList.findUser(uName) == -1)
 									{
 										trgt.setuName(uName);
+										System.out.println("Username Successfully Changed!");
+										running = 1;
 									}
 									else
 										System.out.println("Sorry an account with that name already exists");
@@ -599,18 +620,26 @@ class Application
 						{
 							if(trgt.getAdminPriv())
 							{
-								System.out.println("Would You Like To Remove This Account's Admin? (Y/N");
+								System.out.println("Would You Like To Remove This Account's Admin? (Y/N)");
 								answer = reader.nextLine();
 								if(answer.trim().equals("y") || answer.trim().toLowerCase().equals("yes"))
+								{
 									trgt.setAdminPriv(false);
+									adminList.delete(trgt.getuName());
+									userList.add(trgt);
+								}
 								running = 1;
 							}
 							else
 							{
-								System.out.println("Would You Like To Give This Account Admin? (Y/N");
+								System.out.println("Would You Like To Give This Account Admin? (Y/N)");
 								answer = reader.nextLine();
 								if(answer.trim().equals("y") || answer.trim().toLowerCase().equals("yes"))
+								{
 									trgt.setAdminPriv(true);
+									adminList.add(trgt);
+									userList.delete(trgt.getuName());
+								}
 								running = 1;
 							}
 						}
@@ -639,6 +668,11 @@ class Application
 			System.out.println("Password: ");
 			password = reader.nextLine();
 			trgtUser = userList.findUser(username, password);
+			if(trgtUser!= null)
+			{
+				return trgtUser;
+			}
+			trgtUser = adminList.findUser(username, password);
 			if(trgtUser!= null)
 			{
 				return trgtUser;
@@ -698,7 +732,7 @@ class Application
 							else
 							{
 								User newUser = null;
-								System.out.println("Is this an admin account? (Y/N");
+								System.out.println("Is this an admin account? (Y/N)");
 								String answer = reader.nextLine();
 								if(answer.toLowerCase().equals("yes") || answer.toLowerCase().equals("y"))
 								{

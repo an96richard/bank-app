@@ -13,6 +13,20 @@ class Application
 	 * 	-Properly use data structure techniques to store and manipulate data efficiently
 	 *  -Make my github look nicer
 	 *  
+	 *  v0.50
+	 *  	-Implemented balance saving for users. Balance should now be retained through every login
+	 *  	-Minor Typos
+	 *  	-Fixed missed withdraw problem
+	 *  
+	 *  Notes: That was a lot quicker to do than I thought. Bank App Local version is officially done! Now to the hard part...
+	 *  
+	 *  Todo:
+	 *  	-Implement better search functions to find accounts in large groups
+	 *  	-Implement sorting methods to show list of accounts.
+	 *  	-Implement database, multithreading, etc
+	 *  	-Implement proper UI
+	 *  	-Move all this to the readMe.
+	 *    
 	 *  v0.46
 	 *  Changes:
 	 *  	-Fixed minor typos
@@ -224,7 +238,7 @@ class Application
 					double amount = 0.0;
 					try 
 					{
-							amount = Double.parseDouble(answer);
+						amount = Double.parseDouble(answer);
 					} 
 					catch(Exception e)
 					{
@@ -363,7 +377,7 @@ class Application
 					double amount = 0.0;
 					try 
 					{
-							amount = Double.parseDouble(answer);
+						amount = Double.parseDouble(answer);
 					} 
 					catch(Exception e)
 					{
@@ -492,7 +506,7 @@ class Application
 									double amount = 0.0;
 									try 
 									{
-											Double.parseDouble(answer);
+										amount = Double.parseDouble(answer);
 									} 
 									catch(Exception e)
 									{

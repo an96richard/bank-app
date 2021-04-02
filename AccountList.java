@@ -18,7 +18,6 @@ public class AccountList
 	{	
 		
 		file = new File(fileName);
-		System.out.println(file.exists());
 		if(!file.exists())
 		{
 			try {
@@ -48,12 +47,19 @@ public class AccountList
 			int count = 0;
 			String userName = null;
 			String password = null;
-			while(count < 2 && reader.hasNext())
+			double balance = 0.0;
+			while(count < 3 && reader.hasNext())
 			{
 				 if(count == 0)
-					 userName = reader.nextLine();
+					userName = reader.nextLine();
+				 else if(count == 1)
+					password = reader.nextLine();
 				 else
-					 password = reader.nextLine();
+				 {
+					balance = Double.parseDouble(reader.nextLine());
+					System.out.println(balance);
+				 }
+				
 				 count++;
 			}
 
@@ -61,9 +67,9 @@ public class AccountList
 			{
 				User user = null;
 				if(isAdminList)
-					user = new Admin(userName, password);
+					user = new Admin(userName, password, balance);
 				else
-					user = new User(userName, password);
+					user = new User(userName, password, balance);
 				accountList.add(user);
 			}
 			if(reader.hasNext())
@@ -111,7 +117,12 @@ public class AccountList
 			}
 			if(count == 1)
 			{
-				writer.write(accountList.get(i).getPassword()+ "\n\n");
+				writer.write(accountList.get(i).getPassword()+ "\n");
+				count++;
+			}
+			if(count == 2)
+			{
+				writer.write(accountList.get(i).getBalance()+ "\n\n");
 				count = 0;
 			}
 			

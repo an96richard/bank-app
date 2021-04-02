@@ -10,6 +10,13 @@ public class User
 		this.balance = 0;
 		this.admin = false;
 	}
+	public User(String uName, String password, Double balance)
+	{
+		this.uName = uName; 
+		this.password = password;
+		this.balance = balance;
+		this.admin = false;
+	}
 	public String getuName() 
 	{
 		return uName;
